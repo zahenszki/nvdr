@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,9 +18,8 @@ public class ChallengeService {
     private final YahooFinanceClient dataProvider;
 
     public List<Pricing> getHistoricalAssetData(Asset asset) {
-        log.info("Fetching historical price data");
-        // TODO Implement getHistoricalAssetData()
-        return null;
+        log.info("Fetching historical price data: " + asset);
+        return dataProvider.fetchPriceData(asset.getSymbol(), LocalDate.of(2019, 03, 22), LocalDate.of(2019, 03, 24));
     }
 
     public List<Pricing> getProjectedAssetData(Asset asset) {
