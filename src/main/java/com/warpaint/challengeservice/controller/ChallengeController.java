@@ -25,7 +25,10 @@ public class ChallengeController {
     }
 
     @RequestMapping("{asset}/projected")
-    public List<Pricing> getProjectedAssetData(@PathVariable Asset asset) {
-        return challengeService.getProjectedAssetData(asset);
+    public List<Pricing> getProjectedAssetData(@PathVariable Asset asset,
+                                               @RequestParam("startDate") Optional<String> startDate,
+                                               @RequestParam("endDate") Optional<String> endDate)
+    {
+        return challengeService.getProjectedAssetData(asset, startDate, endDate);
     }
 }
