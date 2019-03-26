@@ -3,6 +3,7 @@ package com.warpaint.challengeservice.calculator;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.warpaint.challengeservice.model.Pricing;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Slf4j
 public class ScenarioComposer {
     public static final int TIME_PROJECTION_IN_MONTH = 20 * 12;
     private static final int MAX_SCENARIOS = 1000;
@@ -25,7 +27,7 @@ public class ScenarioComposer {
     private ScenarioComposer(final BigDecimal currentPrice, final List<Pricing> prices, final int numberOfMonths)
     {
         this.numberOfMonths = numberOfMonths;
-        scenarios = creatSecnarios(currentPrice, calcBumps(prices));
+        scenarios = createScenarios(currentPrice, calcBumps(prices));
     }
 
     public List<Pricing> highestScenario()
@@ -47,19 +49,28 @@ public class ScenarioComposer {
         return iter.next();
     }
 
-    private TreeSet<ArrayList<Pricing>> creatSecnarios(final BigDecimal currentPrice, final ArrayList<BigDecimal> bumps) {
+    protected TreeSet<ArrayList<Pricing>> createScenarios(final BigDecimal currentPrice, final ArrayList<BigDecimal> bumps) {
 
-        return IntStream.rangeClosed(1, MAX_SCENARIOS).mapToObj(i -> scenario(currentPrice, bumps))
-                .collect(Collectors.toCollection(
-                        () -> new TreeSet<>(Comparator.comparing(s -> Iterables.getLast(s).getClosePrice()))
-                ));
+        try {
+            return IntStream.rangeClosed(1, MAX_SCENARIOS).mapToObj(i -> scenario(currentPrice, bumps))
+                    .collect(Collectors.toCollection(
+                            () -> new TreeSet<>(Comparator.comparing(s -> Iterables.getLast(s).getClosePrice()))
+                    ));
+        } catch (NoSuchElementException e)
+        {
+            log.error("ooops " +  e);
+            return new TreeSet<>();
+        }
+
     }
 
 
-    private ArrayList<Pricing> scenario(final BigDecimal price, final ArrayList<BigDecimal> bumps)
+    protected ArrayList<Pricing> scenario(final BigDecimal price, final ArrayList<BigDecimal> bumps)
     {
         Random rand = new Random();
         ArrayList<Pricing> list = Lists.newArrayList();
+        if(bumps.isEmpty())
+            return  list;
         LocalDate date = LocalDate.now();
         BigDecimal currentPrice = price;
         for(int i=0; i< numberOfMonths; ++i)
@@ -71,7 +82,7 @@ public class ScenarioComposer {
         return list;
     }
 
-    private ArrayList<BigDecimal> calcBumps(List<Pricing> prices)
+    protected ArrayList<BigDecimal> calcBumps(List<Pricing> prices)
     {
         ArrayList<BigDecimal> priceBumps = Lists.newArrayList();
         Pricing lastMonthPrice = null;
