@@ -1,8 +1,6 @@
 package com.warpaint.challengeservice.service;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.warpaint.challengeservice.calculator.ScenarioComposer;
 import com.warpaint.challengeservice.dataprovider.YahooFinanceClient;
 import com.warpaint.challengeservice.model.Asset;
@@ -12,16 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import lombok.Getter;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.nio.channels.Pipe;
-import java.text.Bidi;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import static com.warpaint.challengeservice.calculator.ScenarioComposer.TIME_PROJECTION_IN_MONTH;
 import static com.warpaint.challengeservice.service.ChallengeService.DEFAULT_TIME_RANGE;
 
 
@@ -41,7 +35,15 @@ public class ChallengeService {
         return dataProvider.fetchPriceData(asset.getSymbol(), range.getStartDate(), range.getEndDate());
     }
 
-    public List<Pricing> getProjectedAssetData(Asset asset,  Optional<String> start,  Optional<String> end) {
+    public List<Pricing> getProjectedAssetData(Asset asset,  Optional<String> start,  Optional<String> end, Optional<String>  numberOfMonths) {
+        int months = TIME_PROJECTION_IN_MONTH;
+        try{
+            months  = numberOfMonths.map(Integer::parseInt).orElse(TIME_PROJECTION_IN_MONTH);
+        }catch(NumberFormatException e)
+        {
+            log.error("wrong param: " + e);
+        }
+
         DateRange range = new DateRange(start, end);
         log.info("Generating projected price data: " + asset + " startDate: " + range.getStartDate() + " endDate:" + range.getEndDate());
 
@@ -57,7 +59,7 @@ public class ChallengeService {
         BigDecimal lastPrice = Iterables.getLast(prices).getClosePrice();
         //ArrayList<BigDecimal> bumps = bumps(prices);
 
-        ScenarioComposer scnearios = ScenarioComposer.create(lastPrice, prices);
+        ScenarioComposer scnearios = ScenarioComposer.create(lastPrice, prices, months);
 
         log.info("lowest scenario: " + scnearios.lowestScenario());
         log.info("median scenario: " + scnearios.medianScenario());

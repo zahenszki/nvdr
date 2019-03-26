@@ -11,18 +11,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ScenarioComposer {
-    private static final int TIME_PROJECTION_IN_MONTH = 20 * 12;
+    public static final int TIME_PROJECTION_IN_MONTH = 20 * 12;
     private static final int MAX_SCENARIOS = 1000;
 
     private final TreeSet<ArrayList<Pricing>> scenarios;
+    private final int numberOfMonths;
 
-    public static ScenarioComposer create(final BigDecimal currentPrice, final List<Pricing> prices )
+    public static ScenarioComposer create(final BigDecimal currentPrice, final List<Pricing> prices, final int numberOfMonths)
     {
-      return new ScenarioComposer(currentPrice, prices);
+      return new ScenarioComposer(currentPrice, prices, numberOfMonths);
     }
 
-    private ScenarioComposer(final BigDecimal currentPrice, final List<Pricing> prices)
+    private ScenarioComposer(final BigDecimal currentPrice, final List<Pricing> prices, final int numberOfMonths)
     {
+        this.numberOfMonths = numberOfMonths;
         scenarios = creatSecnarios(currentPrice, calcBumps(prices));
     }
 
@@ -60,7 +62,7 @@ public class ScenarioComposer {
         ArrayList<Pricing> list = Lists.newArrayList();
         LocalDate date = LocalDate.now();
         BigDecimal currentPrice = price;
-        for(int i=0; i<TIME_PROJECTION_IN_MONTH; ++i)
+        for(int i=0; i< numberOfMonths; ++i)
         {
             currentPrice = currentPrice.add(bumps.get(rand.nextInt(bumps.size())));
             date = date.plusMonths(1);
