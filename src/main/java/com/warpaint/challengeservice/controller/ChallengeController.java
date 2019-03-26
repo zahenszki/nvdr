@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -17,19 +16,12 @@ public class ChallengeController {
     private final ChallengeService challengeService;
 
     @RequestMapping("{asset}/historical")
-    public List<Pricing> getHistoricalAssetData(@PathVariable Asset asset,
-                                                @RequestParam("startDate") Optional<String> startDate,
-                                                @RequestParam("endDate") Optional<String> endDate)
-    {
-        return challengeService.getHistoricalAssetData(asset, startDate, endDate);
+    public List<Pricing> getHistoricalAssetData(@PathVariable Asset asset) {
+        return challengeService.getHistoricalAssetData(asset);
     }
 
     @RequestMapping("{asset}/projected")
-    public List<Pricing> getProjectedAssetData(@PathVariable Asset asset,
-                                               @RequestParam("startDate") Optional<String> startDate,
-                                               @RequestParam("endDate") Optional<String> endDate,
-                                               @RequestParam("numberOfMonths")Optional<String> numberOfMonths)
-    {
-            return challengeService.getProjectedAssetData(asset, startDate, endDate, numberOfMonths);
+    public List<Pricing> getProjectedAssetData(@PathVariable Asset asset) {
+        return challengeService.getProjectedAssetData(asset);
     }
 }
