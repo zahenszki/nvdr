@@ -16,7 +16,11 @@ import java.time.LocalDate;
 @JsonInclude( Include.NON_EMPTY )
 public class Pricing {
 
+    private BigDecimal openPrice;
     private BigDecimal closePrice;
+    private BigDecimal lowPrice;
+    private BigDecimal highPrice;
+    private BigDecimal dividend;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate tradeDate;
 }
