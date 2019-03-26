@@ -13,11 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -122,19 +124,24 @@ public class YahooFinanceClient {
             while(reader.ready())
             {
                 String[] line = reader.readLine().split(DELIMITER);
-                if(line.length <= closePriceIndex.getAsInt()
-                        || line.length <= dateIndex.getAsInt())
+                if(line.length != tokens.length)
                 {
                    log.warn("Unexpected format of line " + line);
                    continue;
                 }
 
-                priceList.add(Pricing.builder()
-                                .tradeDate(LocalDate.parse(line[dateIndex.getAsInt()]))
-                                .closePrice(new BigDecimal(line[closePriceIndex.getAsInt()]))
-                                .build());
+                try {
+                    priceList.add(Pricing.builder()
+                            .tradeDate(LocalDate.parse(line[dateIndex.getAsInt()]))
+                            .closePrice(new BigDecimal(line[closePriceIndex.getAsInt()]))
+                            .build());
+                }
+                catch(DateTimeParseException | NumberFormatException e)
+                {
+                    log.warn("Wrong line", e);
+                }
             }
-        } catch (final Exception e) {
+        } catch (final IOException e) {
             log.error("Parsing error", e);
         }
 
